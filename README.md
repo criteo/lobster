@@ -23,7 +23,7 @@ end
 
 ### Run Lobster
 
-- In the console with `LOBSTER_DIR=/path/to/jobs/directory sudo lobster run`
+- In the console with `LOBSTER_DIR=/path/to/jobs/directory lobster run`
 - As a service with `LOBSTER_DIR=/path/to/jobs/directory sudo lobster start`
 
 The job `my-job` will start in the next 5 minutes, and once it's done, 

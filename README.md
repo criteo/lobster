@@ -25,6 +25,7 @@ end
 ### Run Lobster
 
 Two environment variables are used (with defaults):
+
 - `LOBSTER_DIR` is the directory used for all job commands, and where the 
   configuration/schedule files are (default: current 
   directory)

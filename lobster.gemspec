@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Maxime Brugidou"]
   s.email       = ["m.brugidou@criteo.com"]
-  s.homepage    = ""
+  s.homepage    = "https://github.com/brugidou/lobster"
   s.summary     = %q{Simple loop job runner service.}
   s.description = %q{}
   s.files         = `git ls-files`.split("\n")

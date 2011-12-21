@@ -1,25 +1,30 @@
 #!/usr/bin/env ruby
 
 require 'lobster'
+require 'logger'
 require 'daemons'
 
 lobster_dir = File.expand_path(ENV['LOBSTER_DIR'] || '.')
-log_dir = File.join(lobster_dir, 'log')
+lobster_env = ENV['LOBSTER_ENV'] || 'development'
 
+Lobster.logger = Logger.new(STDOUT)
+config = Lobster::Configuration.new(lobster_dir, lobster_env)
+
+log_dir = config[:log_dir]
 Dir.mkdir log_dir unless Dir.exist?(log_dir) || ARGV.first == "run"
 
 #puts "LOBSTER_DIR set to #{lobster_dir}"
 
-options = {
+daemon_options = {
   :multiple => false,
-  :monitor => true,
+  :monitor => config[:monitor],
   :backtrace => true,
-  :log_dir => File.join(lobster_dir, 'log'),
-  :log_output => true
+  :log_dir => config[:log_dir],
+  :log_output => true,
+  :dir_mode => :normal,
+  :dir => config[:pid_dir]
 }
-options[:dir_mode] = :system unless ARGV.first == "run"
-options[:log_dir] = File.join(lobster_dir, 'log')
 
-Daemons.run_proc('lobster', options) do
-  Lobster::Service.start(lobster_dir)
+Daemons.run_proc('lobster', daemon_options) do
+  Lobster::Service.start(config)
 end

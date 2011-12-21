@@ -39,12 +39,42 @@ module Lobster
     end
 
     def run(out,err,dir)
-      Lobster.logger.info "Starting job #{@name} from directory #{dir}"
+      Lobster.logger.info "Starting job #{@name}"
       begin
         @pid = spawn(@command, :out=>out, :err=>err, :chdir=>dir)
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
         @next_run = Time.now + 10
+      end
+    end
+    
+    def kill(sig)
+      if @pid
+        Lobster.logger.info "Killing job #{@name} with pid #{@pid} and all its children"
+        kill_tree sig, @pid
+      end
+    end
+
+    private
+
+    def kill_tree(sig, pid)
+      child_parent_processes = `ps -eo pid,ppid | grep #{pid}`
+      child_parent_processes = child_parent_processes.split("\n").map do |child_and_parent|
+        child_and_parent.strip.split(/\s+/).map(&:to_i)
+      end
+      child_parent_processes.each do |child, parent|
+        if parent == pid
+          kill_tree(sig, child)
+        end
+      end
+      
+      Lobster.logger.info "Killing pid #{pid}"
+      begin
+        Process.kill sig, pid
+      rescue Errno::ESRCH
+        # Process already got killed somehow
+      rescue Exception => e
+        Lobster.logger.warn "Process #{pid} exception: #{e}"
       end
     end
   end

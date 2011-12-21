@@ -10,10 +10,12 @@ lobster_env = ENV['LOBSTER_ENV'] || 'development'
 Lobster.logger = Logger.new(STDOUT)
 config = Lobster::Configuration.new(lobster_dir, lobster_env)
 
+#puts "LOBSTER_DIR set to #{lobster_dir}"
+#puts "Config: #{config}"
+
 log_dir = config[:log_dir]
 Dir.mkdir log_dir unless Dir.exist?(log_dir) || ARGV.first == "run"
 
-#puts "LOBSTER_DIR set to #{lobster_dir}"
 
 daemon_options = {
   :multiple => false,

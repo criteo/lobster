@@ -4,14 +4,12 @@ module Lobster
 
     def initialize(file)
       @file = file
-      #@options = {}
       @current_options = nil
       @jobs = {}
     end
 
     def reload
       @new_jobs = {}
-      #@new_options = {}
 
       instance_eval(File.read(@file),@file)
 
@@ -19,12 +17,8 @@ module Lobster
       @jobs.each do |name, job|
         Lobster.logger.info "Job #{name} deleted." unless @new_jobs[name]
       end
-      #@options.each do |key, value|
-      #  Lobster.logger.info "#{key} unset." unless @new_options[key]
-      #end
 
       @jobs = @new_jobs
-      #@options = @new_options
     end
 
     def job(name)
@@ -35,21 +29,15 @@ module Lobster
       @current_options = nil
     end
 
+    [:command, :delay, :user].each do |opt|
+      define_method opt do |value|
+        @current_options[opt] = value
+      end
+    end
+
+    # backward compatibility
     def cmd(command)
       @current_options[:command] = command
     end
-
-    def delay(delay)
-      @current_options[:delay] = delay
-    end
-
-#    def set(option, value)
-#      Lobster.logger.info "set #{option}=#{value}" if value != @options[option]
-#      @new_options[option] = value
-#    end
-#
-#    def get(option)
-#      @options[option]
-#    end
   end
 end

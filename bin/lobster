@@ -7,7 +7,6 @@ require 'daemons'
 lobster_dir = File.expand_path(ENV['LOBSTER_DIR'] || '.')
 lobster_env = ENV['LOBSTER_ENV'] || 'development'
 
-Lobster.logger = Logger.new(STDOUT)
 config = Lobster::Configuration.new(lobster_dir, lobster_env)
 
 #puts "LOBSTER_DIR set to #{lobster_dir}"

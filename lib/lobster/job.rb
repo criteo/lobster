@@ -11,17 +11,16 @@ module Lobster
     def reload(options)
       options[:delay] ||= 10
 
-      if options[:command] != @command
-        Lobster.logger.info "Job command updated for #{@name}, was \"#{@command}\", now \"#{options[:command]}\"" if @command
-        @command = options.delete(:command)
+      [:command, :delay, :user].each do |opt|
+        val = instance_variable_get "@#{opt}"
+        if options[opt] != val
+          Lobster.logger.info "Job #{opt} updated for #{@name}, was \"#{val}\", now \"#{options[opt]}\"" if val
+          instance_variable_set "@#{opt}", options.delete(opt)
+          # special case: reset @next_run if delay is updated
+          @next_run = nil if opt == :delay and not running?
+        end
       end
       
-      if options[:delay] != @delay
-        Lobster.logger.info "Job delay updated for #{@name}, was \"#{@delay}\", now \"#{options[:delay]}\"" if @delay
-        @delay = options.delete(:delay)
-        @next_run = nil unless running?
-      end
-
       @name ||= "<unnamed_job_#{command.hash.abs}>"
       @next_run ||= Time.now + rand(@delay*60)
     end
@@ -40,8 +39,10 @@ module Lobster
 
     def run(out,err,dir)
       Lobster.logger.info "Starting job #{@name}"
+      command_line = @user ? "sudo -nu #{@user} sh -c \"#{@command}\"" : @command
+
       begin
-        @pid = spawn(@command, :out=>out, :err=>err, :chdir=>dir)
+        @pid = spawn(command_line, :out=>out, :err=>err, :chdir=>dir)
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
         @next_run = Time.now + 10

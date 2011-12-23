@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lobster (0.1.0)
+    lobster (0.1.1.pre)
       daemons (>= 1.1.4)
 
 GEM

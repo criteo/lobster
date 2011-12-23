@@ -10,6 +10,7 @@ module Lobster
       @job_list = nil
       @running = true
       @sleeping = false
+      @main_thread = Thread.current
       @config = config
       @poll_delay = 60
 
@@ -28,6 +29,16 @@ module Lobster
         end
       end
 
+      trap 'HUP' do
+        begin
+          @config = Configuration.new(@config[:lobster_dir], @config[:environment])
+        rescue Exception => e
+          Lobster.logger.error "Cannot reload conf, Exception: #{e}"
+          break
+        end
+        Lobster.logger.info "Lobster config reloaded: #{@config}"
+      end
+
       at_exit do
         @running = false
         sleep 0.01 until @sleeping # make sure no new jobs are created
@@ -36,6 +47,8 @@ module Lobster
         @job_list.jobs.each_value do |job|
           job.kill 'INT'
         end if @job_list
+
+        @main_thread.wakeup # stop sleeping and exit properly
       end
     end
 

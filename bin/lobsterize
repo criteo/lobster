@@ -19,12 +19,15 @@ unless File.exist?(config)
       ## All paths are absolute or relative to the LOBSTER_DIR
       ##
       ## monitor the daemon and restart it if it stops
+      ## (requires a restart if modified)
       #monitor: true
       #
       ## log directory
+      ## (requires a restart if modified)
       #log_dir: log
       #
       ## pids directory
+      ## (requires a restart if modified)
       #pid_dir: /var/run/lobster/
       #
       ## schedule file location

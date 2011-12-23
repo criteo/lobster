@@ -9,13 +9,24 @@ Lobster runs as a service (daemon) and regularly checks a schedule in
 parallel but a job can't run twice at the same time (no overlap). The only 
 configuration needed is the delay between 2 job runs.
 
-How It Works
+Get Started
 ------------
+
+### Install
+
+    gem install lobster
 
 ### Create a `config/schedule.rb` file
 
+Run `lobsterize` in the directory where you need to setup and run your jobs 
+(defined by the LOBSTER_DIR variable)
+
+    lobsterize
+
+Then add a job in `config/schedule.rb`
+
 ~~~~~ ruby
-# config/schedule.rb (this is the default schedule location)
+# config/schedule.rb
 job "my-job" do
   cmd "runthis && runthat >> log/here.log"
   delay 5 # minutes
@@ -66,11 +77,6 @@ my_prod_env:
 
 Any log in stderr/stdout will be written in the log directory as 
 `lobster.output`, the actual lobster log is in `lobster.log`
-
-How To Install
---------------
-
-    gem install lobster
 
 Capistrano Deployment
 =====================

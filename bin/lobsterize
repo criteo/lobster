@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+unless Dir.exist?('config')
+  puts 'create: config/'
+  Dir.mkdir 'config'
+end
+
+config = File.join('config', 'lobster.yml')
+schedule = File.join('config', 'schedule.rb')
+
+unless File.exist?(config)
+  puts "create: #{config}"
+  File.open(config,'w') do |f|
+    f.write <<-EOF.gsub /^\s+/,''
+      ## config/lobster.yml
+      ## configuration file for Lobster
+      ##
+      ## Default values
+      ## All paths are absolute or relative to the LOBSTER_DIR
+      ##
+      ## monitor the daemon and restart it if it stops
+      #monitor: true
+      #
+      ## log directory
+      #log_dir: log
+      #
+      ## pids directory
+      #pid_dir: /var/run/lobster/
+      #
+      ## schedule file location
+      #schedule_file: config/schedulr.rb
+      #
+      ##
+      ## Environment values
+      ## You can use environement with the LOBSTER_ENV env variable,
+      ## the default is set to 'development'
+      ##
+      ## Example:
+      #development:
+      #  monitor: false
+      #  pid_dir: pids
+      #production:
+      #  log_dir: /var/log/lobster/
+    EOF
+  end
+end
+
+unless File.exist?(schedule)
+  puts "create: #{schedule}"
+  File.open(schedule,'w') do |f|
+    f.write <<-EOF.gsub /^\s+/,''
+      ## config/schedule.rb
+      ## schedule file for Lobster
+      ##
+      ## Example:
+      ##
+      ## Job named my_job
+      #job 'my_job' do
+      #
+      ## will just sleep for 5 seconds, this command is run from the
+      ## LOBSTER_DIR directory, so you can use relative paths from here.
+      #  command 'sleep 5'
+      #
+      ## the user my_user will be use to run the command, Lobster needs 
+      ## password-less sudo access to this user.
+      #  user 'my_user'
+      #
+      ## Lobster will wait 2 minutes between 2 runs
+      #  delay 2
+      #
+      ## end of job definition
+      #end
+    EOF
+  end
+end
+
+puts "edit your schedule and try \"lobster run\""

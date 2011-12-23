@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require 'lobster'
-require 'logger'
 require 'daemons'
 
 lobster_dir = File.expand_path(ENV['LOBSTER_DIR'] || '.')

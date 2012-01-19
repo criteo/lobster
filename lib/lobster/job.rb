@@ -39,7 +39,7 @@ module Lobster
 
     def run(out,err,dir)
       Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -nu #{@user} sh -c \"#{@command}\"" : @command
+      command_line = @user ? "sudo -inu #{@user} \"cd $PWD ; #{@command}\"" : @command
 
       begin
         @pid = spawn(command_line, :out=>out, :err=>err, :chdir=>dir)
@@ -70,12 +70,16 @@ module Lobster
       end
       
       Lobster.logger.info "Killing pid #{pid}"
-      begin
-        Process.kill sig, pid
-      rescue Errno::ESRCH
-        # Process already got killed somehow
-      rescue Exception => e
-        Lobster.logger.warn "Process #{pid} exception: #{e}"
+      if @user
+        `sudo -inu #{@user} "kill -s #{sig} #{pid}"`
+      else
+        begin
+          Process.kill sig, pid
+        rescue Errno::ESRCH
+          # Process already got killed somehow
+        rescue Exception => e
+          Lobster.logger.warn "Process #{pid} exception: #{e}"
+        end
       end
     end
   end

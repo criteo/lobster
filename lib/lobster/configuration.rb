@@ -6,7 +6,7 @@ module Lobster
       @config = {
         :monitor => true,
         :log_dir => 'log',
-        :pid_dir => File.join('/', 'var', 'run', 'lobster'),
+        :pid_dir => 'pids',
         :schedule_file => File.join('config', 'schedule.rb')
       }
 

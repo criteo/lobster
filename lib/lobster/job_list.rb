@@ -1,11 +1,12 @@
 module Lobster
   class JobList
-    attr_accessor :jobs
+    attr_accessor :jobs, :environment
 
-    def initialize(file)
+    def initialize(file, env)
       @file = file
       @current_options = nil
       @jobs = {}
+      @environment = env
     end
 
     def reload

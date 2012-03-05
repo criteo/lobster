@@ -68,12 +68,17 @@ module Lobster
           end
         end
         @sleeping = true
-        sleep @poll_delay
+        begin
+          sleep @poll_delay
+        rescue Exception => e
+          Lobster.logger.info "Sleep caught exception: #{e}"
+          break
+        end
       end
     end
 
     def reload_schedule
-      @job_list ||= JobList.new(@config[:schedule_file])
+      @job_list ||= JobList.new(@config[:schedule_file], @config[:environment])
       begin
         @job_list.reload
       rescue Exception => e

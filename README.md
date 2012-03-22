@@ -43,9 +43,6 @@ Two environment variables are used (with defaults):
 - `LOBSTER_ENV` is a variable used to handle different environments (default: 
   development)
 
-You need write permission to `/var/run/lobster/` for pids, this path is 
-configurable.
-
 - `lobster run` will run in the console
 - or `lobster start` as a deamon
 

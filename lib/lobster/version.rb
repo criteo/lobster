@@ -1,3 +1,3 @@
 module Lobster
-  VERSION = '0.1.3.wip'
+  VERSION = '0.2.0'
 end

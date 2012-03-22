@@ -60,8 +60,8 @@ unless File.exist?(schedule)
       ## Job named my_job
       #job 'my_job' do
       #
-      ## will just sleep for 5 seconds, this command is run from the
-      ## LOBSTER_DIR directory, so you can use relative paths from here.
+      ## will just sleep for 5 seconds, you can use relative paths
+      ## from the directory defined with the "directory" command
       #  command 'sleep 5'
       #
       ## the user my_user will be use to run the command, Lobster needs 
@@ -70,6 +70,9 @@ unless File.exist?(schedule)
       #
       ## Lobster will wait 2 minutes between 2 runs
       #  delay 2
+      #
+      ## will run the command from this directory. Defaults to LOBSTER_DIR
+      #  directory '/my_directory/here/'
       #
       ## end of job definition
       #end

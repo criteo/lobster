@@ -1,18 +1,18 @@
 module Lobster
   class JobList
-    attr_accessor :jobs, :environment
+    attr_accessor :jobs
 
-    def initialize(file, env)
-      @file = file
+    def initialize(config)
+      @config = config
       @current_options = nil
       @jobs = {}
-      @environment = env
     end
 
     def reload
       @new_jobs = {}
 
-      instance_eval(File.read(@file),@file)
+      file = @config[:schedule_file]
+      instance_eval(File.read(file),file)
 
       # purely for logging
       @jobs.each do |name, job|
@@ -26,11 +26,11 @@ module Lobster
       @current_options = {}
       yield
       @new_jobs[name] ||= @jobs[name] || Job.new(name)
-      @new_jobs[name].reload(@current_options)
+      @new_jobs[name].reload(@current_options, @config[:lobster_dir])
       @current_options = nil
     end
 
-    [:command, :delay, :user].each do |opt|
+    [:command, :delay, :user, :directory].each do |opt|
       define_method opt do |value|
         @current_options[opt] = value
       end
@@ -39,6 +39,11 @@ module Lobster
     # backward compatibility
     def cmd(command)
       @current_options[:command] = command
+    end
+
+    # config data
+    def environment
+      @config[:environment]
     end
   end
 end

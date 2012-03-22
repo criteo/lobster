@@ -3,6 +3,10 @@ require 'yaml'
 module Lobster
   class Configuration
     def initialize(dir, env)
+      reload(dir,env)
+    end
+
+    def reload(dir, env)
       @config = {
         :monitor => true,
         :log_dir => 'log',

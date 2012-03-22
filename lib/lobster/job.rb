@@ -8,10 +8,11 @@ module Lobster
       @pid = nil
     end
 
-    def reload(options)
+    def reload(options, lobster_dir)
       options[:delay] ||= 10
+      options[:directory] ||= lobster_dir
 
-      [:command, :delay, :user].each do |opt|
+      [:command, :delay, :user, :directory].each do |opt|
         val = instance_variable_get "@#{opt}"
         if options[opt] != val
           Lobster.logger.info "Job #{opt} updated for #{@name}, was \"#{val}\", now \"#{options[opt]}\"" if val
@@ -21,7 +22,7 @@ module Lobster
         end
       end
       
-      @name ||= "<unnamed_job_#{command.hash.abs}>"
+      @name ||= "<unnamed_job_#{@command.hash.abs}>"
       @next_run ||= Time.now + rand(@delay*60)
     end
 
@@ -37,12 +38,12 @@ module Lobster
       end
     end
 
-    def run(out,err,dir)
+    def run(out,err)
       Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -inu #{@user} \"cd $PWD ; #{@command}\"" : @command
+      command_line = @user ? "sudo -snu #{@user} '#{@command}'" : @command
 
       begin
-        @pid = spawn(command_line, :out=>out, :err=>err, :chdir=>dir)
+        @pid = spawn(command_line, :out=>out, :err=>err, :chdir=> @directory)
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
         @next_run = Time.now + 10

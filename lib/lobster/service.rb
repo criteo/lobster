@@ -31,7 +31,7 @@ module Lobster
 
       trap 'HUP' do
         begin
-          @config = Configuration.new(@config[:lobster_dir], @config[:environment])
+          @config.reload(@config[:lobster_dir], @config[:environment])
         rescue Exception => e
           Lobster.logger.error "Cannot reload conf, Exception: #{e}"
           break
@@ -64,7 +64,7 @@ module Lobster
 
         @job_list.jobs.each_value do |job|
           if not job.running? and now >= job.next_run
-            job.run(@wout, @werr, @config[:lobster_dir])
+            job.run(@wout, @werr)
           end
         end
         @sleeping = true
@@ -78,7 +78,7 @@ module Lobster
     end
 
     def reload_schedule
-      @job_list ||= JobList.new(@config[:schedule_file], @config[:environment])
+      @job_list ||= JobList.new(@config)
       begin
         @job_list.reload
       rescue Exception => e

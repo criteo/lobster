@@ -18,7 +18,8 @@ module Lobster
       if File.exist? config_file_path
         config_file = YAML.load_file(config_file_path)
         @config.keys.each do |key|
-          val = config_file[env][key.to_s] # environment-specific override
+          # environment-specific override
+          val = config_file[env][key.to_s] if config_file[env]
           val = config_file[key.to_s] if val.nil?
           @config[key] = val unless val.nil? # keep default if no config
         end

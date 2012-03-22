@@ -13,7 +13,9 @@ config = Lobster::Configuration.new(lobster_dir, lobster_env)
 #puts "Config: #{config}"
 
 log_dir = config[:log_dir]
-Dir.mkdir log_dir unless Dir.exist?(log_dir) || ARGV.first == "run"
+pid_dir = config[:pid_dir]
+Dir.mkdir log_dir unless Dir.exist?(log_dir) || ARGV.first == 'run'
+Dir.mkdir pid_dir unless Dir.exist?(pid_dir)
 
 daemon_options = {
   :multiple => false,

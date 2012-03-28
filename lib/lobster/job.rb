@@ -40,7 +40,7 @@ module Lobster
 
     def run(out,err)
       Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -snu #{@user} '#{@command}'" : @command
+      command_line = @user ? "sudo -inu #{@user} 'cd #{@directory}; #{@command}'" : @command
 
       begin
         @pid = spawn(command_line, :out=>out, :err=>err, :chdir=> @directory)

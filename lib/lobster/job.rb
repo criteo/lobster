@@ -40,7 +40,7 @@ module Lobster
 
     def run(out,err)
       Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -inu #{@user} -- 'cd #{@directory}; #{@command}'" : @command
+      command_line = @user ? "sudo -inu #{@user} -- sh -c 'cd #{@directory}; #{@command}'" : @command
 
       begin
         @pid = spawn(command_line, :out=>out, :err=>err, :chdir=> @directory)
@@ -72,7 +72,7 @@ module Lobster
       
       Lobster.logger.info "Killing pid #{pid}"
       if @user
-        `sudo -inu #{@user} "kill -s #{sig} #{pid}"`
+        `sudo -inu #{@user} -- sh -c "kill -s #{sig} #{pid}"`
       else
         begin
           Process.kill sig, pid

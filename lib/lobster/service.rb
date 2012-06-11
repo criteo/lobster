@@ -63,6 +63,7 @@ module Lobster
         reload_schedule
 
         @job_list.jobs.each_value do |job|
+          job.check_last_run
           if not job.running? and now >= job.next_run
             job.run(@wout, @werr)
           end

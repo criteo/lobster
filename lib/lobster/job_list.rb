@@ -30,7 +30,7 @@ module Lobster
       @current_options = nil
     end
 
-    [:command, :delay, :user, :directory].each do |opt|
+    Job::OPTIONS.each do |opt|
       define_method opt do |value|
         @current_options[opt] = value
       end

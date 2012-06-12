@@ -33,6 +33,14 @@ job "my-job" do
 end
 ~~~~~
 
+Additional settings:
+
+- `directory` this is set to `LOBSTER_DIR` by default
+- `user` the Unix user that will run the job, lobster must have full 
+  passwordless sudo access to this user
+- `max_duration` for monitoring, will log an error if the job has not been 
+  successful for `max_duration + delay` minutes
+
 ### Run Lobster
 
 Two environment variables are used (with defaults):

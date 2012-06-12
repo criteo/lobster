@@ -25,7 +25,7 @@ module Lobster
 
       Thread.new do
         while (line = rerr.gets)
-          Lobster.logger.error line.chomp
+          Lobster.logger.warn line.chomp
         end
       end
 

@@ -47,7 +47,7 @@ module Lobster
           Lobster.logger.error "Job #{@name} Failed with status #{$?}"
         end
         @pid = nil
-        @next_run = @last_run + @delay*60
+        @next_run = Time.now + @delay*60
         false
       else
         true
@@ -68,35 +68,9 @@ module Lobster
     
     def kill(sig)
       if @pid
-        Lobster.logger.info "Killing job #{@name} with pid #{@pid} and all its children"
-        kill_tree sig, @pid
-      end
-    end
-
-    private
-
-    def kill_tree(sig, pid)
-      child_parent_processes = `ps -eo pid,ppid | grep #{pid}`
-      child_parent_processes = child_parent_processes.split("\n").map do |child_and_parent|
-        child_and_parent.strip.split(/\s+/).map(&:to_i)
-      end
-      child_parent_processes.each do |child, parent|
-        if parent == pid
-          kill_tree(sig, child)
-        end
-      end
-      
-      Lobster.logger.info "Killing pid #{pid}"
-      if @user
-        `sudo -inu #{@user} -- sh -c "kill -s #{sig} #{pid}"`
-      else
-        begin
-          Process.kill sig, pid
-        rescue Errno::ESRCH
-          # Process already got killed somehow
-        rescue Exception => e
-          Lobster.logger.warn "Process #{pid} exception: #{e}"
-        end
+        Lobster.logger.info "Killing job #{@name} with pid #{@pid}"
+        Process.kill sig, @pid
+        Process.wait @pid
       end
     end
   end

@@ -14,21 +14,6 @@ module Lobster
       @config = config
       @poll_delay = 60
 
-      rout, @wout = IO.pipe
-      rerr, @werr = IO.pipe
-
-      Thread.new do
-        while (line = rout.gets)
-          Lobster.logger.info line.chomp
-        end
-      end
-
-      Thread.new do
-        while (line = rerr.gets)
-          Lobster.logger.warn line.chomp
-        end
-      end
-
       trap 'HUP' do
         begin
           @config.reload(@config[:lobster_dir], @config[:environment])
@@ -65,7 +50,7 @@ module Lobster
         @job_list.jobs.each_value do |job|
           job.check_last_run
           if not job.running? and now >= job.next_run
-            job.run(@wout, @werr)
+            job.run
           end
         end
         @sleeping = true

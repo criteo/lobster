@@ -8,6 +8,21 @@ module Lobster
       @name = name
       Lobster.logger.info "Job #{name} created."
       @pid = nil
+
+      rout, @wout = IO.pipe
+      rerr, @werr = IO.pipe
+
+      Thread.new do
+        while (line = rout.gets)
+          Lobster.logger.info "#{@name}: #{line.chomp}"
+        end
+      end
+
+      Thread.new do
+        while (line = rerr.gets)
+          Lobster.logger.warn "#{@name}: #{line.chomp}"
+        end
+      end
     end
 
     def reload(options, lobster_dir)
@@ -54,12 +69,12 @@ module Lobster
       end
     end
 
-    def run(out,err)
+    def run
       Lobster.logger.info "Starting job #{@name}"
       command_line = @user ? "sudo -inu #{@user} -- sh -c 'cd #{@directory}; #{@command}'" : @command
 
       begin
-        @pid = spawn(command_line, :out=>out, :err=>err, :chdir=> @directory)
+        @pid = spawn(command_line, :out=>@wout, :err=>@werr, :chdir=> @directory)
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
         @next_run = Time.now + 10

@@ -84,7 +84,11 @@ module Lobster
     def kill(sig)
       if @pid
         Lobster.logger.info "Killing job #{@name} with pid #{@pid}"
-        Process.kill sig, @pid
+        if @user
+          `sudo -inu #{@user} -- kill -s #{sig} #{@pid}`
+        else
+          Process.kill sig, @pid
+        end
         Process.wait @pid
       end
     end

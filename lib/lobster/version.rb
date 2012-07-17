@@ -1,3 +1,3 @@
 module Lobster
-  VERSION = '0.2.5.pre'
+  VERSION = '0.2.5'
 end

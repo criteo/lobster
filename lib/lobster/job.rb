@@ -71,7 +71,7 @@ module Lobster
 
     def run
       Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -inu #{@user} -- sh -c 'cd #{@directory}; #{@command}'" : @command
+      command_line = @user ? "sudo -nu #{@user} -- sh -lc 'cd #{@directory}; #{@command}'" : @command
 
       begin
         @pid = spawn(command_line, :out=>@wout, :err=>@werr, :chdir=> @directory)

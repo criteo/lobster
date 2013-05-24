@@ -16,7 +16,7 @@ module Lobster
 
       # purely for logging
       @jobs.each do |name, job|
-        Lobster.logger.info "Job #{name} deleted." unless @new_jobs[name]
+        job.destroy unless @new_jobs[name]
       end
 
       @jobs = @new_jobs

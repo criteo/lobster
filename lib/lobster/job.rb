@@ -8,21 +8,6 @@ module Lobster
       @name = name
       Lobster.logger.info "Job #{name} created."
       @pid = nil
-
-      rout, @wout = IO.pipe
-      rerr, @werr = IO.pipe
-
-      Thread.new do
-        while (line = rout.gets)
-          Lobster.logger.info "#{@name}: #{line.chomp}"
-        end
-      end
-
-      Thread.new do
-        while (line = rerr.gets)
-          Lobster.logger.warn "#{@name}: #{line.chomp}"
-        end
-      end
     end
 
     def reload(options, lobster_dir)
@@ -62,6 +47,7 @@ module Lobster
           Lobster.logger.error "Job #{@name} Failed with status #{$?}"
         end
         @pid = nil
+        close_pipes
         @next_run = Time.now + @delay*60
         false
       else
@@ -70,6 +56,8 @@ module Lobster
     end
 
     def run
+      create_pipes
+
       Lobster.logger.info "Starting job #{@name}"
       command_line = @user ? "sudo -nu #{@user} -- sh -lc 'cd #{@directory}; #{@command}'" : @command
 
@@ -77,6 +65,7 @@ module Lobster
         @pid = spawn(command_line, :out=>@wout, :err=>@werr, :chdir=> @directory)
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
+        close_pipes
         @next_run = Time.now + 10
       end
     end
@@ -91,6 +80,45 @@ module Lobster
         end
         Process.wait @pid
       end
+    end
+
+    def destroy
+      Thread.new do
+        Lobster.logger.info "Job #{name} being destroyed."
+        destroy_time = Time.now
+        while running?
+          sleep 60
+          if ((delay = Time.now - destroy_time) > 60*60)
+            Lobster.logger.warn "Job #{name} has not been destroyed after #{delay} seconds."
+          end
+        end
+      end
+    end
+
+    private
+
+    def create_pipes
+      @rout, @wout = IO.pipe
+      @rerr, @werr = IO.pipe
+
+      Thread.new do
+        while (line = @rout.gets)
+          Lobster.logger.info "#{@name}: #{line.chomp}"
+        end
+      end
+
+      Thread.new do
+        while (line = @rerr.gets)
+          Lobster.logger.warn "#{@name}: #{line.chomp}"
+        end
+      end
+    end
+
+    def close_pipes
+      @wout.close
+      @rout.close
+      @werr.close
+      @rerr.close
     end
   end
 end

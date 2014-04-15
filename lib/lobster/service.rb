@@ -27,7 +27,7 @@ module Lobster
       at_exit do
         @running = false
         sleep 0.01 until @sleeping # make sure no new jobs are created
-       
+
         Lobster.logger.info  "Exiting, all jobs are getting killed."
         @job_list.jobs.each_value do |job|
           job.kill 'INT'
@@ -40,11 +40,11 @@ module Lobster
     def run
       Lobster.logger.info "Lobster started version #{Lobster::VERSION}"
       Lobster.logger.info "Lobster config: #{@config}"
-      
+
       while @running
         @sleeping = false
         now = Time.now
-        
+
         reload_schedule
 
         @job_list.jobs.each_value do |job|

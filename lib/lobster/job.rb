@@ -24,7 +24,7 @@ module Lobster
           @next_run = nil if opt == :delay and not running?
         end
       end
-      
+
       @name ||= "<unnamed_job_#{@command.hash.abs}>"
       @next_run ||= Time.now + rand(@delay*60)
       @last_run ||= Time.now
@@ -56,12 +56,12 @@ module Lobster
     end
 
     def run
-      create_pipes
-
-      Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -nu #{@user} -- sh -lc 'cd #{@directory}; #{@command}'" : @command
-
       begin
+        create_pipes
+
+        Lobster.logger.info "Starting job #{@name}"
+        command_line = @user ? "sudo -nu #{@user} -- sh -lc 'cd #{@directory}; #{@command}'" : @command
+
         @pid = spawn(command_line, :out=>@wout, :err=>@werr, :chdir=> @directory)
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
@@ -69,7 +69,7 @@ module Lobster
         @next_run = Time.now + 10
       end
     end
-    
+
     def kill(sig)
       if @pid
         Lobster.logger.info "Killing job #{@name} with pid #{@pid}"
@@ -115,10 +115,10 @@ module Lobster
     end
 
     def close_pipes
-      @wout.close
-      @rout.close
-      @werr.close
-      @rerr.close
+      @wout.close if @wout
+      @rout.close if @rout
+      @werr.close if @werr
+      @rerr.close if @rerr
     end
   end
 end

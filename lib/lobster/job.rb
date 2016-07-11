@@ -59,7 +59,7 @@ module Lobster
       create_pipes
 
       Lobster.logger.info "Starting job #{@name}"
-      command_line = @user ? "sudo -nu #{@user} -- sh -lc 'cd #{@directory}; #{@command}'" : @command
+      command_line = @user ? "sudo -nu #{@user} -- sh -lc \"cd #{@directory}; #{@command}\"" : @command
 
       begin
         @pid = spawn(command_line, :out=>@wout, :err=>@werr, :chdir=> @directory)

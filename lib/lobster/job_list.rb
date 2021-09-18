@@ -12,7 +12,13 @@ module Lobster
       @new_jobs = {}
 
       file = @config[:schedule_file]
-      instance_eval(File.read(file),file)
+      instance_eval(File.read(file), file)
+
+      @job_list.jobs.each_value do |job|
+        if job.max_duration_exceeded
+          job.kill 'INT'
+        end
+      end
 
       # purely for logging
       @jobs.each do |name, job|

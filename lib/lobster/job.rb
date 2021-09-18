@@ -26,15 +26,25 @@ module Lobster
       end
 
       @name ||= "<unnamed_job_#{@command.hash.abs}>"
-      @next_run ||= Time.now + rand(@delay*60)
+      @next_run ||= Time.now + rand(@delay * 60)
       @last_run ||= Time.now
     end
 
     def check_last_run
-      if @max_duration > 0 and Time.now - @last_run >= (@max_duration + @delay)*60
+      if @max_duration > 0 and Time.now - @last_run >= (@max_duration + @delay) * 60
         Lobster.logger.error(
           "Job #{@name} has not run since #{@last_run}"
         )
+      end
+    end
+
+    def max_duration_exceeded
+      # safe period is equal to 3 time greater than the max_duration value
+      if @max_duration > 0 and Time.now - @last_run >= (@max_duration * 3) * 60
+        Lobster.logger.error "Job #{@name} pid=#{@pid} is probably stuck, because it is running too long"
+        true
+      else
+        false
       end
     end
 
@@ -48,7 +58,7 @@ module Lobster
         end
         @pid = nil
         close_pipes
-        @next_run = Time.now + @delay*60
+        @next_run = Time.now + @delay * 60
         false
       else
         true
@@ -62,7 +72,8 @@ module Lobster
         Lobster.logger.info "Starting job #{@name}"
         command_line = @user ? "sudo -nu #{@user} -- sh -lc 'cd #{@directory}; #{@command}'" : @command
 
-        @pid = spawn(command_line, :out=>@wout, :err=>@werr, :chdir=> @directory)
+        @pid = spawn(command_line, :out => @wout, :err => @werr, :chdir => @directory)
+        Lobster.logger.info "Job #{@name} started with pid #{@pid}"
       rescue Exception => e
         Lobster.logger.error "#{e}: error when starting job #{@name}"
         close_pipes
@@ -80,6 +91,7 @@ module Lobster
         end
         Process.wait @pid
       end
+      @pid = nil
     end
 
     def destroy
@@ -88,7 +100,7 @@ module Lobster
         destroy_time = Time.now
         while running?
           sleep 60
-          if ((delay = Time.now - destroy_time) > 60*60)
+          if ((delay = Time.now - destroy_time) > 60 * 60)
             Lobster.logger.warn "Job #{name} has not been destroyed after #{delay} seconds."
           end
         end
